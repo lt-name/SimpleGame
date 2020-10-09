@@ -25,7 +25,7 @@ public abstract class Games {
                 level.setBlock(new Vector3(x, room.yi, z), Block.get(80, 0));//STONE
             }
         }
-        finishBuild();
+        this.finishBuild();
     }
 
     public void finishBuild() {

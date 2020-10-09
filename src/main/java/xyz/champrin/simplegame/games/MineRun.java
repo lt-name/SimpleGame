@@ -21,11 +21,9 @@ public class MineRun extends Games implements Listener {
             Player player = event.getPlayer();
             if (room.gamePlayer.contains(player)) {
                 Level level = player.getLevel();
-                if (level.getBlock(player.floor().subtract(0, 1)).getId() == Block.PLANKS)//木板
-                {
+                if (level.getBlock(player.floor().subtract(0, 1)).getId() == Block.PLANKS) {
                     gameFinish(player);
-                }
-                else if (level.getBlock(player.floor()).getId() == Block.STONE_PRESSURE_PLATE) {
+                }else if (level.getBlock(player.floor()).getId() == Block.STONE_PRESSURE_PLATE) {
                     player.sendMessage("§c 你踩中了地雷！重新开始吧！");
                     player.teleport(room.getRandPos(2));
                 }

@@ -104,8 +104,8 @@ public class SimpleGame extends PluginBase implements Listener {
         this.getLogger().info(PREFIX + "  §d加载中。。。§e|作者：Champrin");
         this.getLogger().info(PREFIX + "  §e ==> Champrin的第§c" + PLUGIN_No + "§e款小游戏 " + GAME_NAME + " " + PLUGIN_NAME + "！");
 
-        this.LoadConfig();
-        this.LoadRoomConfig();
+        this.loadConfig();
+        this.loadRoomConfig();
 
         this.getLogger().info(PREFIX + "  §d已加载完毕。。。");
         this.getLogger().info(PREFIX + "  §e加载耗时" + (new Date().getTime() - start) + "毫秒");
@@ -126,7 +126,7 @@ public class SimpleGame extends PluginBase implements Listener {
         this.rooms.put(roomId, game);
         this.freeRooms.add(game);
         this.getServer().getPluginManager().registerEvents(game, this);
-        if (!((Boolean) game.data.get("Arena"))){
+        if (!((Boolean) game.data.getOrDefault("Arena", false))) {
             game.GameType.madeArena();
         }
     }
@@ -171,7 +171,7 @@ public class SimpleGame extends PluginBase implements Listener {
     }
 
 
-    public void LoadConfig() {
+    public void loadConfig() {
         this.getLogger().info("-配置文件加载中...");
         this.saveResource("config.yml", false);
         this.config = new Config(this.getDataFolder() + "/config.yml", Config.YAML);
@@ -185,7 +185,7 @@ public class SimpleGame extends PluginBase implements Listener {
         }
     }
 
-    public void LoadRoomConfig() {
+    public void loadRoomConfig() {
         this.getLogger().info("-房间信息加载中...");
         File[] files = new File(this.getDataFolder() + "/Room/").listFiles();
         if (files != null) {
@@ -194,7 +194,7 @@ public class SimpleGame extends PluginBase implements Listener {
                     Config room = new Config(file, Config.YAML);
                     String FileName = file.getName().substring(0, file.getName().lastIndexOf("."));
                     this.roomInformation.put(FileName, new LinkedHashMap<>(room.getAll()));
-                    if ((Boolean) room.get("state")) {
+                    if (room.getBoolean("state", false)) {
                         this.setRoomData(FileName);
                         this.getLogger().info("   房间§b" + FileName + "§r加载完成");
                     }
@@ -206,12 +206,15 @@ public class SimpleGame extends PluginBase implements Listener {
 
 
     public Config getRoomConfig(String roomName) {
-        return this.roomConfigCache.getOrDefault(roomName,
-                new Config(this.getDataFolder() + "/Room/" + roomName + ".yml", Config.YAML));
+        if (!this.roomConfigCache.containsKey(roomName)) {
+            this.roomConfigCache.put(roomName,
+                    new Config(this.getDataFolder() + "/Room/" + roomName + ".yml", Config.YAML));
+        }
+        return this.roomConfigCache.get(roomName);
     }
 
     //判断房间是否存在
-    public boolean RoomExist(String roomName) {
+    public boolean roomExist(String roomName) {
         return this.roomInformation.containsKey(roomName);
     }
 
@@ -235,46 +238,46 @@ public class SimpleGame extends PluginBase implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Player p = event.getPlayer();
         String name = p.getName();
-        if (setters.containsKey(name)) {
+        if (this.setters.containsKey(name)) {
             event.setCancelled(true);
             Block b = event.getBlock();
 
-            String room_name = setters.get(name).get("room_name");
+            String room_name = this.setters.get(name).get("room_name");
             Config room = this.getRoomConfig(room_name);
 
             String xyz = Math.round(Math.floor(b.x)) + "+" + Math.round(Math.floor(b.y)) + "+" + Math.round(Math.floor(b.z));
 
-            int step = Integer.parseInt(setters.get(name).get("step"));
+            int step = Integer.parseInt(this.setters.get(name).get("step"));
 
             switch (step) {
                 case 1:
                     room.set("wait_pos", xyz);//等待点
-                    setters.get(name).put("step", step + 1 + "");
+                    this.setters.get(name).put("step", step + 1 + "");
                     p.sendMessage("§c>  §f请设置§a区域要求点1");
                     break;
                 case 2:
                     room.set("pos1", xyz);
-                    setters.get(name).put("step", step + 1 + "");
+                    this.setters.get(name).put("step", step + 1 + "");
                     p.sendMessage("§c>  §f请设置§a区域要求点2");
                     break;
                 case 3:
                     room.set("pos2", xyz);
                     room.set("room_world", b.level.getFolderName());
-                    setters.get(name).put("step", step + 1 + "");
+                    this.setters.get(name).put("step", step + 1 + "");
                     p.sendMessage("§c>  §f请设置§a观战点");
                     break;
                 case 4:
                     room.set("view_pos", xyz);
-                    setters.get(name).put("step", step + 1 + "");
+                    this.setters.get(name).put("step", step + 1 + "");
                     p.sendMessage("§c>  §c请设置§a离开点");
                     break;
                 case 5:
                     room.set("leave_pos", xyz);
                     room.set("leave_world", b.level.getFolderName());
                     room.set("state", true);
-                    roomInformation.put(room_name, (LinkedHashMap<String, Object>) room.getAll());
-                    setRoomData(room_name);
-                    setters.remove(name);
+                    this.roomInformation.put(room_name, (LinkedHashMap<String, Object>) room.getAll());
+                    this.setRoomData(room_name);
+                    this.setters.remove(name);
                     p.sendMessage("§a>>  §f房间设置已完成");
                     break;
             }
@@ -314,7 +317,7 @@ public class SimpleGame extends PluginBase implements Listener {
                                 sender.sendMessage(">  参数不足");
                                 break;
                             }
-                            if (!this.RoomExist(args[1])) {
+                            if (!this.roomExist(args[1])) {
                                 sender.sendMessage(">  房间不存在");
                                 break;
                             }
@@ -339,7 +342,7 @@ public class SimpleGame extends PluginBase implements Listener {
                             sender.sendMessage(">  参数不足");
                             break;
                         }
-                        if (this.RoomExist(args[1])) {
+                        if (this.roomExist(args[1])) {
                             sender.sendMessage(">  房间已存在");
                             break;
                         }
@@ -360,7 +363,7 @@ public class SimpleGame extends PluginBase implements Listener {
                             sender.sendMessage(">  参数不足");
                             break;
                         }
-                        if (!this.RoomExist(args[1])) {
+                        if (!this.roomExist(args[1])) {
                             sender.sendMessage(">  房间不存在");
                             break;
                         }

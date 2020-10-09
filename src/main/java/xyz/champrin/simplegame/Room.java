@@ -483,7 +483,7 @@ public class Room implements Listener {
             Player player = event.getPlayer();
             if ("§c退出游戏".equals(player.getInventory().getItemInHand().getCustomName())) {
                 player.sendMessage("§c>  §f你已退出游戏！");
-                leaveRoom(player);
+                this.leaveRoom(player);
             }
             event.setCancelled(true);
         }
