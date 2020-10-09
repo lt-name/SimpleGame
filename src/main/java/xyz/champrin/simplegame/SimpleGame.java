@@ -81,17 +81,17 @@ public class SimpleGame extends PluginBase implements Listener {
     }
 
     public String getAllGameNameType() {
-        String allGameNameType = "";
+        StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
         for (Map.Entry<Integer, String> map : GameMap.entrySet()) {
-            allGameNameType = allGameNameType + "[" + map.getKey() + "]" + map.getValue() + ",";
+            stringBuilder.append("[").append(map.getKey()).append("]").append(map.getValue()).append(",");
             i = i + 1;
             if (i == 3) {
                 i = 0;
-                allGameNameType = allGameNameType + "\n";
+                stringBuilder.append("\n");
             }
         }
-        return allGameNameType;
+        return stringBuilder.toString();
     }
 
     @Override
@@ -109,7 +109,6 @@ public class SimpleGame extends PluginBase implements Listener {
     }
 
     public void setConfigData() {
-        instance = this;
         if (this.config.get("占领加分") == null) {
             this.config.set("占领加分", 10);
             this.config.set("团队加分", 2);
@@ -204,13 +203,12 @@ public class SimpleGame extends PluginBase implements Listener {
 
     public void LoadRoomConfig() {
         this.getLogger().info("-房间信息加载中...");
-        File file = new File(this.getDataFolder() + "/Room/");
-        File[] files = file.listFiles();
+        File[] files = new File(this.getDataFolder() + "/Room/").listFiles();
         if (files != null) {
-            for (File FILE : files) {
-                if (FILE.isFile()) {
-                    Config room = new Config(FILE, Config.YAML);
-                    String FileName = FILE.getName().substring(0, FILE.getName().lastIndexOf("."));
+            for (File file : files) {
+                if (file.isFile()) {
+                    Config room = new Config(file, Config.YAML);
+                    String FileName = file.getName().substring(0, file.getName().lastIndexOf("."));
                     this.roomInformation.put(FileName, new LinkedHashMap<>(room.getAll()));
                     if ((Boolean) room.get("state")) {
                         this.setRoomData(FileName);

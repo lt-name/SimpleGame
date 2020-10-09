@@ -13,7 +13,6 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.scheduler.Task;
 import xyz.champrin.simplegame.games.*;
 import xyz.champrin.simplegame.games2.RedAlert;
@@ -48,6 +47,8 @@ public class Room implements Listener {
     public ArrayList<String> BreakGame = new ArrayList<>(Arrays.asList("OreRace", "OreRace", "SnowballWar", "SnowballWar_2", "BeFast_1", "BeFast_2", "BeFast_4", "Weeding"));
     public ArrayList<String> PlaceGame = new ArrayList<>(Arrays.asList("BeFast_3", "KeepStanding_2", "SnowballWar"));
     public ArrayList<String> DamageGame = new ArrayList<>(Arrays.asList("KeepStanding", "KeepStanding_2", "SnowballWar", "FallingRun"));
+
+    public HashMap<Player , Map<Integer, Item>> playerBagCache = new HashMap<>();
 
     public Room(String roomId, SimpleGame plugin) {
         this.plugin = plugin;
@@ -268,71 +269,17 @@ public class Room implements Listener {
         return map;
     }
 
-    //这里使用了若水的保存物品NBT的方法
-    public LinkedHashMap<Player, ArrayList<String>> playerBag = new LinkedHashMap<>();
-
-    private static byte[] hexStringToBytes(String hexString) {
-        if (hexString == null || hexString.equals("")) {
-            return null;
-        }
-        hexString = hexString.toUpperCase();
-        int length = hexString.length() / 2;
-        char[] hexChars = hexString.toCharArray();
-        byte[] d = new byte[length];
-        for (int i = 0; i < length; i++) {
-            int pos = i * 2;
-            d[i] = (byte) (charToByte(hexChars[pos]) << 4 | charToByte(hexChars[pos + 1]));
-        }
-        return d;
-    }
-
-    private static byte charToByte(char c) {
-        return (byte) "0123456789ABCDEF".indexOf(c);
-    }
-
-    private static String bytesToHexString(byte[] src) {
-        StringBuilder stringBuilder = new StringBuilder();
-        if (src == null || src.length <= 0) {
-            return null;
-        }
-        for (byte aSrc : src) {
-            int v = aSrc & 0xFF;
-            String hv = Integer.toHexString(v);
-            if (hv.length() < 2) {
-                stringBuilder.append(0);
-            }
-            stringBuilder.append(hv);
-        }
-        return stringBuilder.toString();
-    }
-
     public void saveBag(Player gamePlayer) {
-        ArrayList<String> bag = new ArrayList<>();
-        for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
-            Item item = gamePlayer.getInventory().getItem(i);
-            String nbt = "null";
-            if (item.hasCompoundTag()) {
-                nbt = bytesToHexString(item.getCompoundTag());
-            }
-            bag.add(item.getId() + "-" + item.getDamage() + "-" + item.getCount() + "-" + nbt);
-        }
-        playerBag.put(gamePlayer, bag);
+        this.playerBagCache.put(gamePlayer, gamePlayer.getInventory().getContents());
         gamePlayer.getInventory().clearAll();
+        gamePlayer.getUIInventory().clearAll();
     }
 
     public void loadBag(Player gamePlayer) {
         gamePlayer.getInventory().clearAll();
-        ArrayList<String> bag = playerBag.get(gamePlayer);
-        for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
-            String[] a = bag.get(i).split("-");
-            Item item = new Item(Integer.parseInt(a[0]), Integer.parseInt(a[1]), Integer.parseInt(a[2]));
-            if (!a[3].equals("null")) {
-                CompoundTag tag = Item.parseCompoundTag(hexStringToBytes(a[3]));
-                item.setNamedTag(tag);
-            }
-            gamePlayer.getInventory().setItem(i, item);
-        }
-        playerBag.remove(gamePlayer);
+        gamePlayer.getUIInventory().clearAll();
+        gamePlayer.getInventory().setContents(this.playerBagCache.get(gamePlayer));
+        this.playerBagCache.remove(gamePlayer);
     }
 
     public void setToView(Player player) {

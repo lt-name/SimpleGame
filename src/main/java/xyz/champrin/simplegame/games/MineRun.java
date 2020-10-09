@@ -15,7 +15,7 @@ public class MineRun extends Games implements Listener {
         super(room);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR) @SuppressWarnings("unused")
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
         if (room.gameType.equals("MineRun")) {
             Player player = event.getPlayer();
