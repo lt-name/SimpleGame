@@ -10,7 +10,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
-import cn.nukkit.event.player.PlayerJoinEvent;
+import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.element.ElementButtonImageData;
 import cn.nukkit.form.response.FormResponseSimple;
@@ -37,11 +37,14 @@ public class SimpleGame extends PluginBase implements Listener {
 
     public LinkedHashMap<Integer, String> GameMap = new LinkedHashMap<>();
 
+    public HashMap<String, Config> roomConfigCache = new HashMap<>();
     public LinkedHashMap<String, LinkedHashMap<String, Object>> roomInformation = new LinkedHashMap<>();//房间基本信息
     public LinkedHashMap<String, Room> rooms = new LinkedHashMap<>();//开启的房间信息
     public ArrayList<Room> freeRooms = new ArrayList<>();
-    public LinkedHashMap<String, LinkedHashMap<String, String>> setters = new LinkedHashMap<>();
-    public LinkedHashMap<Player, Room> gamePlayer = new LinkedHashMap<>(), waitPlayer = new LinkedHashMap<>(), viewPlayer = new LinkedHashMap<>();
+    public HashMap<String, HashMap<String, String>> setters = new HashMap<>();
+    public LinkedHashMap<Player, Room> gamePlayer = new LinkedHashMap<>(),
+            waitPlayer = new LinkedHashMap<>(),
+            viewPlayer = new LinkedHashMap<>();
 
     public int OwnPoint, TeamPoint, WinPoint;
 
@@ -108,16 +111,14 @@ public class SimpleGame extends PluginBase implements Listener {
         this.getLogger().info(PREFIX + "  §e加载耗时" + (new Date().getTime() - start) + "毫秒");
     }
 
-    public void setConfigData() {
-        if (this.config.get("占领加分") == null) {
-            this.config.set("占领加分", 10);
-            this.config.set("团队加分", 2);
-            this.config.set("最终胜利加分", 10);
-            this.config.save();
+    @Override
+    public void onDisable() {
+        //给每个房间结算结果
+        if (!this.rooms.isEmpty()) {
+            for (Map.Entry<String, Room> map : rooms.entrySet()) {
+                map.getValue().serverStop();
+            }
         }
-        this.OwnPoint = (int) this.config.get("占领加分");
-        this.TeamPoint = (int) this.config.get("团队加分");
-        this.WinPoint = (int) this.config.get("最终胜利加分");
     }
 
     public void setRoomData(String roomId) {
@@ -142,16 +143,6 @@ public class SimpleGame extends PluginBase implements Listener {
             }
         }
         return null;
-    }
-
-    @Override
-    public void onDisable() {
-        //给每个房间结算结果
-        if (!this.rooms.isEmpty()) {
-            for (Map.Entry<String, Room> map : rooms.entrySet()) {
-                map.getValue().serverStop();
-            }
-        }
     }
 
     //判断房间是否存在
@@ -182,22 +173,15 @@ public class SimpleGame extends PluginBase implements Listener {
 
     public void LoadConfig() {
         this.getLogger().info("-配置文件加载中...");
-
-        if (!new File(this.getDataFolder() + "/config.yml").exists()) {
-            this.saveResource("config.yml", false);
-        }
+        this.saveResource("config.yml", false);
         this.config = new Config(this.getDataFolder() + "/config.yml", Config.YAML);
-        if (!new File(this.getDataFolder() + "/player.yml").exists()) {
-            this.saveResource("player.yml", false);
-        }
+        this.OwnPoint = this.config.getInt("占领加分", 10);
+        this.TeamPoint = this.config.getInt("团队加分", 2);
+        this.WinPoint = this.config.getInt("最终胜利加分", 10);
         this.player = new Config(this.getDataFolder() + "/player.yml", Config.YAML);
-
-        this.setConfigData();
         File file = new File(this.getDataFolder() + "/Room/");
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                this.getServer().getLogger().info("文件夹创建失败");
-            }
+        if (!file.exists() && !file.mkdirs()) {
+            this.getServer().getLogger().info("文件夹创建失败");
         }
     }
 
@@ -222,7 +206,8 @@ public class SimpleGame extends PluginBase implements Listener {
 
 
     public Config getRoomConfig(String roomName) {
-        return new Config(this.getDataFolder() + "/Room/" + roomName + ".yml", Config.YAML);
+        return this.roomConfigCache.getOrDefault(roomName,
+                new Config(this.getDataFolder() + "/Room/" + roomName + ".yml", Config.YAML));
     }
 
     //判断房间是否存在
@@ -230,12 +215,12 @@ public class SimpleGame extends PluginBase implements Listener {
         return this.roomInformation.containsKey(roomName);
     }
 
-    @EventHandler @SuppressWarnings("unused")
-    public void onJoin(PlayerJoinEvent event) {
-        setters.remove(event.getPlayer().getName());
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        this.setters.remove(event.getPlayer().getName());
     }
 
-    @EventHandler @SuppressWarnings("unused")
+    @EventHandler
     public void onChat(PlayerChatEvent event) {
         Player p = event.getPlayer();
         if (getPlayerRoom(p) == null) return;
@@ -247,7 +232,6 @@ public class SimpleGame extends PluginBase implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused")
     public void onBlockBreak(BlockBreakEvent event) {
         Player p = event.getPlayer();
         String name = p.getName();
@@ -341,7 +325,7 @@ public class SimpleGame extends PluginBase implements Listener {
                                     break;
                                 }
                             }
-                            LinkedHashMap<String, String> list = new LinkedHashMap<>();
+                            HashMap<String, String> list = new HashMap<>();
                             list.put("room_name", args[1]);
                             list.put("step", 1 + "");
                             setters.put(sender.getName(), list);
@@ -421,7 +405,7 @@ public class SimpleGame extends PluginBase implements Listener {
         player.showFormWindow(form, GameMenuId);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR) @SuppressWarnings("unused")
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onFormResponse(PlayerFormRespondedEvent event) {
         Player p = event.getPlayer();
         if (GameMenuId == event.getFormID()) {
