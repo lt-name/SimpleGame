@@ -2,13 +2,14 @@ package xyz.champrin.simplegame.games;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
+import cn.nukkit.event.Listener;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.Config;
 import xyz.champrin.simplegame.Room;
 import xyz.champrin.simplegame.SimpleGame;
 
-public abstract class Games {
+public abstract class Games implements Listener {
 
     public SimpleGame plugin = SimpleGame.getInstance();
 
@@ -68,4 +69,5 @@ public abstract class Games {
             room.stopGame();
         }
     }
+
 }

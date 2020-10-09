@@ -346,7 +346,7 @@ public class SimpleGame extends PluginBase implements Listener {
                             sender.sendMessage(">  房间已存在");
                             break;
                         }
-                        Config a = new Config(this.getDataFolder() + "/Room/" + args[1] + ".yml", Config.YAML);
+                        Config a = this.getRoomConfig(args[1]);
                         a.set("state", false);
                         a.set("room_world", null);
                         a.set("gameTime", 120);
@@ -357,6 +357,7 @@ public class SimpleGame extends PluginBase implements Listener {
                         a.save();
                         roomInformation.put(args[1], (LinkedHashMap<String, Object>) a.getAll());
                         sender.sendMessage(">  房间" + args[1] + "成功创建");
+                        this.getServer().dispatchCommand(sender, "sgmap set " + args[1]);
                         break;
                     case "del":
                         if (args.length < 2) {
@@ -397,7 +398,7 @@ public class SimpleGame extends PluginBase implements Listener {
         FormWindowSimple form = new FormWindowSimple("§c§fSimpleGame", "§f§l房间列表");
         form.addButton(new ElementButton("§l§6>> §6随机加入 §6<<", new ElementButtonImageData("path", "textures/blocks/bedrock.png")));
         for (Room room : rooms.values()) {
-            String state = "§f房间:§a" + room.roomId+"§f游戏:§a" + room.gameType;
+            String state = "§f房间:§a" + room.roomId+"§f游戏:§a" + room.gameName;
             if (room.game == 0) {
                 state = state + "§e等待中 §a" + room.getLobbyPlayersNumber() + "§f/§a" + room.getMaxPlayers();
             } else {
@@ -443,7 +444,7 @@ public class SimpleGame extends PluginBase implements Listener {
             if (i == index) {
                 return room;
             }
-            i = i + 1;
+            i++;
         }
         return null;
     }

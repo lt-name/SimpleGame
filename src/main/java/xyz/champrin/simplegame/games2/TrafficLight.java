@@ -16,7 +16,7 @@ import java.util.Random;
 public class TrafficLight extends Games {
 
     //红绿黄、灯种类
-    private int r = 0, g = 0, y = 0;
+    private int r, g, y;
     private String type = "g";
     private int rt = 0, gt = 0, yt = 0;
 
@@ -29,7 +29,7 @@ public class TrafficLight extends Games {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
-        if (room.gameType.equals("TrafficLight")) {
+        if (room.gameName.equals("TrafficLight")) {
             Player player = event.getPlayer();
             if (room.gamePlayer.contains(player)) {
                 Level level = player.getLevel();
@@ -52,7 +52,7 @@ public class TrafficLight extends Games {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onHeld(PlayerItemHeldEvent event) {
-        if (room.gameType.equals("TrafficLight")) {
+        if (room.gameName.equals("TrafficLight")) {
             Player player = event.getPlayer();
             if (room.gamePlayer.contains(player)) {
                 event.setCancelled(true);

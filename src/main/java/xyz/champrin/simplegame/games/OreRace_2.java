@@ -4,17 +4,14 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
-import cn.nukkit.event.player.PlayerInteractEvent;
-import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import xyz.champrin.simplegame.Room;
 
 import java.util.LinkedHashMap;
 
-public class OreRace_2 extends Games implements Listener {
+public class OreRace_2 extends Games {
 
     public OreRace_2(Room room) {
         super(room);
@@ -33,7 +30,7 @@ public class OreRace_2 extends Games implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBreak(BlockBreakEvent event) {
-        if (room.gameType.equals("OreRace_2")) {
+        if (room.gameName.equals("OreRace_2")) {
             Player player = event.getPlayer();
             if (room.gamePlayer.contains(player)) {
                 int blockId = event.getBlock().getId();

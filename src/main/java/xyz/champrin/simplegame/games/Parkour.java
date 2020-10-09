@@ -4,19 +4,18 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.level.Level;
 import xyz.champrin.simplegame.Room;
 
-public class Parkour extends Games implements Listener {
+public class Parkour extends Games {
     public Parkour(Room room) {
         super(room);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
-        if (room.gameType.equals("Parkour")) {
+        if (room.gameName.equals("Parkour")) {
             Player player = event.getPlayer();
             if (room.gamePlayer.contains(player)) {
                 Level level = player.getLevel();

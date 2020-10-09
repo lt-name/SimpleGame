@@ -1,6 +1,7 @@
 package xyz.champrin.simplegame;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -27,7 +28,7 @@ public class Room implements Listener {
     public SimpleGame plugin;
     public Games GameType;
     public Task GameTask;
-    public String gameType;
+    public String gameName;
     public String roomId;
     public LinkedHashMap<String, Object> data;
     public int game = 0;
@@ -56,8 +57,8 @@ public class Room implements Listener {
         this.data = plugin.roomInformation.get(roomId);
 
         this.level = plugin.getServer().getLevelByName((String) data.get("room_world"));
-        this.gameType = (String) data.get("gameName");
-        switch (gameType) {
+        this.gameName = (String) data.get("gameName");
+        switch (gameName) {
             case "OreRace":
                 this.GameType = new OreRace(this);
                 GameTask = new RoomSchedule(this, GameType);
@@ -139,7 +140,9 @@ public class Room implements Listener {
                 break;
             */
         }
-        this.plugin.getServer().getScheduler().scheduleRepeatingTask(GameTask, 20);
+
+        Server.getInstance().getScheduler().scheduleRepeatingTask(GameTask, 20);
+        Server.getInstance().getPluginManager().registerEvents(this.GameType, this.plugin);
 
         String[] p1 = ((String) data.get("pos1")).split("\\+");
         String[] p2 = ((String) data.get("pos2")).split("\\+");
@@ -160,8 +163,11 @@ public class Room implements Listener {
         return new Vector3(Integer.parseInt(p1[0]), Integer.parseInt(p1[1]) + 2, Integer.parseInt(p1[2]));
     }
 
-    public Vector3 getRandPos(int num)//在游戏区域内随机获取坐标
-    {
+    /**
+     * @param num 高度
+     * @return 游戏区域内的随机坐标
+     */
+    public Vector3 getRandPos(int num) {
         int x = xi;
         int z = zi;
         int y = SimpleGame.RANDOM.nextInt(ya - yi + 1 + num) + yi;
@@ -186,8 +192,11 @@ public class Room implements Listener {
         return null;
     }
 
-    public String getPlayerMode(Player p)//获取玩家当前状态
-    {
+    /**
+     * @param p 玩家
+     * @return 玩家当前状态
+     */
+    public String getPlayerMode(Player p) {
         if (waitPlayer.contains(p)) {
             return "wait";
         } else if (gamePlayer.contains(p)) {
@@ -339,7 +348,7 @@ public class Room implements Listener {
     }
 
     public void checkTool() {
-        switch (gameType) {
+        switch (gameName) {
             case "OreRace":
             case "OreRace_2":
             case "BeFast_1":
@@ -495,14 +504,7 @@ public class Room implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         if (getPlayerMode(event.getPlayer()) != null) {
-            leaveRoom(event.getPlayer());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onKick(PlayerKickEvent event) {
-        if (getPlayerMode(event.getPlayer()) != null) {
-            leaveRoom(event.getPlayer());
+            this.leaveRoom(event.getPlayer());
         }
     }
 
@@ -534,7 +536,7 @@ public class Room implements Listener {
         if (en instanceof Player) {
             if (getPlayerMode((Player) en) != null) {
                 if (getPlayerMode((Player) en).equals("game")) {
-                    if (!DamageGame.contains(gameType)) {
+                    if (!DamageGame.contains(gameName)) {
                         event.setCancelled(true);
                         return;
                     }
@@ -548,7 +550,7 @@ public class Room implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         if (getPlayerMode(event.getPlayer()) != null) {
             if (getPlayerMode(event.getPlayer()).equals("game")) {
-                if (!BreakGame.contains(gameType)) {
+                if (!BreakGame.contains(gameName)) {
                     event.setCancelled(true);
                     return;
                 }
@@ -561,7 +563,7 @@ public class Room implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         if (getPlayerMode(event.getPlayer()) != null) {
             if (getPlayerMode(event.getPlayer()).equals("game")) {
-                if (!PlaceGame.contains(gameType)) {
+                if (!PlaceGame.contains(gameName)) {
                     event.setCancelled(true);
                     return;
                 }

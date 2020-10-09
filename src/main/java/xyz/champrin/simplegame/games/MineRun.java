@@ -4,12 +4,11 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.level.Level;
 import xyz.champrin.simplegame.Room;
 
-public class MineRun extends Games implements Listener {
+public class MineRun extends Games {
 
     public MineRun(Room room) {
         super(room);
@@ -17,7 +16,7 @@ public class MineRun extends Games implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
-        if (room.gameType.equals("MineRun")) {
+        if (room.gameName.equals("MineRun")) {
             Player player = event.getPlayer();
             if (room.gamePlayer.contains(player)) {
                 Level level = player.getLevel();
@@ -30,4 +29,5 @@ public class MineRun extends Games implements Listener {
             }
         }
     }
+
 }

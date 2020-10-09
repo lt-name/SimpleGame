@@ -10,10 +10,9 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.level.Level;
 import xyz.champrin.simplegame.Room;
-import cn.nukkit.event.Listener;
 
 
-public class KeepStanding extends Games implements Listener {
+public class KeepStanding extends Games {
 
     public KeepStanding(Room room) {
         super(room);
@@ -22,11 +21,11 @@ public class KeepStanding extends Games implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onHit(EntityDamageEvent event) {
         if (event instanceof EntityDamageByEntityEvent) {
-            if (room.gameType.equals("KeepStanding") || room.gameType.equals("KeepStanding_2")) {
+            if (room.gameName.equals("KeepStanding") || room.gameName.equals("KeepStanding_2")) {
                 Entity player = event.getEntity();
                 Entity damage = ((EntityDamageByEntityEvent) event).getDamager();
                 if (player instanceof Player && damage instanceof Player) {
-                    if (room.gamePlayer.contains((Player) player) && room.gamePlayer.contains((Player) damage)) {
+                    if (room.gamePlayer.contains(player) && room.gamePlayer.contains(damage)) {
                         event.setCancelled(true);
                         if (((Player) damage).getInventory().getItemInHand().getId() == 280) {
                             double yaw = Math.atan2((player.x - damage.x), (player.z - damage.z));
@@ -41,7 +40,7 @@ public class KeepStanding extends Games implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        if (room.gameType.equals("KeepStanding")) {
+        if (room.gameName.equals("KeepStanding")) {
             if (room.gamePlayer.contains(player)) {
                 Level level = player.getLevel();
                 if (level.getBlock(player.floor().subtract(0, 1)).getId() == Block.WOOL) {
@@ -49,7 +48,7 @@ public class KeepStanding extends Games implements Listener {
                 }
             }
         }
-        else if (room.gameType.equals("KeepStanding_2")) {
+        else if (room.gameName.equals("KeepStanding_2")) {
             if (player.getY() < room.yi - 2) {
                 room.setToView(player);
             }

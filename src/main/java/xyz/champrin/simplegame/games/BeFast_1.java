@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
@@ -13,7 +12,7 @@ import xyz.champrin.simplegame.Room;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class BeFast_1 extends Games implements Listener {
+public class BeFast_1 extends Games {
 
     public BeFast_1(Room room) {
         super(room);
@@ -23,7 +22,7 @@ public class BeFast_1 extends Games implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR) @SuppressWarnings("unused")
     public void onBreak(BlockBreakEvent event) {
-        if (room.gameType.equals("BeFast_1")) {
+        if (room.gameName.equals("BeFast_1")) {
             Player player = event.getPlayer();
             if (room.gamePlayer.contains(player)) {
                 Block block = event.getBlock();
