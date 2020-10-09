@@ -2,7 +2,7 @@ package xyz.champrin.simplegame.schedule;
 
 public class Countdown {
 
-    public String countDown(int number) {
+    public static String countDown(int number) {
         switch (number) {
             case 5:
                 return getNumber5();
@@ -19,7 +19,7 @@ public class Countdown {
         }
     }
 
-    private String getNumber5() {
+    private static String getNumber5() {
         return  "§c▇▇▇▇▇▇\n" +
                 "§c▇           \n" +
                 "§c▇▇▇▇▇▇\n" +
@@ -27,7 +27,7 @@ public class Countdown {
                 "§c▇▇▇▇▇▇\n";
     }
 
-    private String getNumber4() {
+    private static String getNumber4() {
         return  "§c▇      ▇\n" +
                 "§c▇       ▇\n" +
                 "§c▇▇▇▇▇\n" +
@@ -35,7 +35,7 @@ public class Countdown {
                 "§c       ▇\n";
     }
 
-    private String getNumber3() {
+    private static String getNumber3() {
         return  "§e▇▇▇▇▇▇\n" +
                 "§e           ▇\n" +
                 "§e▇▇▇▇▇▇\n" +
@@ -43,7 +43,7 @@ public class Countdown {
                 "§e▇▇▇▇▇▇\n";
     }
 
-    private String getNumber2() {
+    private static String getNumber2() {
         return  "§e▇▇▇▇▇▇\n" +
                 "§e           ▇\n" +
                 "§e▇▇▇▇▇▇\n" +
@@ -51,7 +51,7 @@ public class Countdown {
                 "§e▇▇▇▇▇▇\n";
     }
 
-    private String getNumber1() {
+    private static String getNumber1() {
         return  "§6          ▇\n" +
                 "§6          ▇\n" +
                 "§6          ▇\n" +

@@ -41,7 +41,7 @@ public class RoomSchedule_2 extends Task {
                     this.game.startTime = 10;
                 }
                 for (Player p : room.waitPlayer) {
-                    p.sendPopup(new Countdown().countDown(game.startTime));
+                    p.sendPopup(Countdown.countDown(game.startTime));
                 }
                 if (this.game.startTime <= 0) {
                     if (room.waitPlayer.size() >= room.getMinPlayers()) {

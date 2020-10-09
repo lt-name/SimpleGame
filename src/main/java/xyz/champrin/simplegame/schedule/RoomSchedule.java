@@ -42,7 +42,7 @@ public class RoomSchedule extends Task {
                     this.startTime = 10;
                 }
                 for (Player p : room.waitPlayer) {
-                    p.sendPopup(new Countdown().countDown(startTime));
+                    p.sendPopup(Countdown.countDown(startTime));
                 }
                 if (this.startTime <= 0) {
                     if (room.waitPlayer.size() >= room.getMinPlayers()) {
