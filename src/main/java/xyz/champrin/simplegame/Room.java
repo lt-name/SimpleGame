@@ -303,18 +303,18 @@ public class Room implements Listener {
         player.getInventory().setItem(8, (Item.get(64, 0, 1)).setCustomName("§c退出游戏"));
         player.teleport(ViewPos);
         player.setSpawn(ViewPos);
-        player.sendMessage(">> 你进入观战模式");
+        player.sendMessage(this.plugin.language.translateString("youEnterTheSpectatorMode"));
     }
 
     public void joinToRoom(Player p) {
         if (getPlayerMode(p) != null) {
-            p.sendMessage(">>  你已经加入一个房间了,请在聊天栏输入“@hub”重试");
+            p.sendMessage(this.plugin.language.translateString("hasJoinedTheRoom"));
             return;
         } else if (waitPlayer.size() >= getMaxPlayers()) {
-            p.sendMessage(">>  房间已满");
+            p.sendMessage(this.plugin.language.translateString("roomIsFull"));
             return;
         } else if (game == 1) {
-            p.sendMessage(">>  房间已开始");
+            p.sendMessage(this.plugin.language.translateString("theRoomHasStartedTheGame"));
             return;
         }
         Position v3 = Position.fromObject(WaitPos, plugin.getServer().getLevelByName((String) data.get("room_world")));
@@ -325,10 +325,13 @@ public class Room implements Listener {
         this.waitPlayer.add(p);
         this.rank.put(p.getName(), 0);
 
-        p.getInventory().setItem(8, (Item.get(64, 0, 1)).setCustomName("§c退出游戏"));
+        Item item = Item.get(64, 0, 1);
+        item.setCustomName(this.plugin.language.translateString("item_QuitRoom_Name"));
+        item.getNamedTag().putInt("SimpleGameItemType", 10);
+        p.getInventory().setItem(8, item);
 
-        arenaMsg(">  §a" + p.getName() + "§f加入了房间");
-        p.sendMessage("§c若想退出游戏请输入 @hub");
+        arenaMsg(this.plugin.language.translateString("playerJoinRoom", p.getName()));
+        p.sendMessage(this.plugin.language.translateString("exitRoomCommandPrompt"));
     }
 
     public void leaveRoom(Player p) {
@@ -344,7 +347,7 @@ public class Room implements Listener {
         p.removeAllEffects();
         this.joinGamePlayer = joinGamePlayer - 1;
         p.getInventory().clearAll();
-        arenaMsg(">  §a" + p.getName() + "§f离开了房间");
+        arenaMsg(this.plugin.language.translateString("playerQuitRoom", p.getName()));
     }
 
     public void checkTool() {
@@ -490,9 +493,12 @@ public class Room implements Listener {
     public void onTouch(PlayerInteractEvent event) {
         if (getPlayerMode(event.getPlayer()) != null) {
             Player player = event.getPlayer();
-            if ("§c退出游戏".equals(player.getInventory().getItemInHand().getCustomName())) {
-                player.sendMessage("§c>  §f你已退出游戏！");
-                this.leaveRoom(player);
+            Item item = event.getItem();
+            if (item != null && item.hasCompoundTag()) {
+                if (item.getNamedTag().getInt("SimpleGameItemType") == 10) {
+                    player.sendMessage(this.plugin.language.translateString("exitRoomPrompt"));
+                    this.leaveRoom(player);
+                }
             }
             event.setCancelled(true);
         }
