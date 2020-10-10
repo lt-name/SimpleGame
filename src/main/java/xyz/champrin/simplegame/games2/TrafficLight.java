@@ -107,6 +107,7 @@ public class TrafficLight extends Games {
         }
     }
 
+    @Override
     public void madeArena() {
         Level level = room.level;
         for (int x = room.xi; x <= room.xa; x++) {
@@ -116,4 +117,5 @@ public class TrafficLight extends Games {
         }
         finishBuild();
     }
+
 }

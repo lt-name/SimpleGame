@@ -52,8 +52,8 @@ public class BeFast_3 extends Games {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDamage(EntityDamageEvent event) {
         if (room.gameName.equals("BeFast_3")) {
-            Entity player = event.getEntity();
-            if (player instanceof Player) {
+            if (event.getEntity() instanceof Player) {
+                Player player = (Player) event.getEntity();
                 if (room.gamePlayer.contains(player)) {
                     if (event instanceof EntityDamageByEntityEvent) {
                         Entity damager = ((EntityDamageByEntityEvent) event).getDamager();
@@ -61,7 +61,7 @@ public class BeFast_3 extends Games {
                             if (room.gamePlayer.contains(damager)) {
                                 event.setCancelled(true);
                                 double yaw = Math.atan2((player.x - damager.x), (player.z - damager.z));
-                                ((Player) player).knockBack(damager, 0, Math.sin(yaw), Math.cos(yaw), 1);
+                                player.knockBack(damager, 0, Math.sin(yaw), Math.cos(yaw), 1);
                             }
                         }
                     }
@@ -70,10 +70,12 @@ public class BeFast_3 extends Games {
         }
     }
 
+    @Override
     public void madeArena() {
         for (Block block : blockPlace) {
             block.level.setBlock(block, Block.get(0, 0));
         }
         finishBuild();
     }
+
 }

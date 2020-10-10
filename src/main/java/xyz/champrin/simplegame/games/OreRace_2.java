@@ -43,6 +43,7 @@ public class OreRace_2 extends Games {
         }
     }
 
+    @Override
     public void madeArena() {
         Level level = room.level;
         int v = Math.abs(room.xa - room.xi) * 12 * (Math.abs(room.ya - room.yi));
@@ -77,4 +78,5 @@ public class OreRace_2 extends Games {
         }
         finishBuild();
     }
+
 }
