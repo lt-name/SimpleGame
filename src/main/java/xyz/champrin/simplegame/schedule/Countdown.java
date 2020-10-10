@@ -1,5 +1,7 @@
 package xyz.champrin.simplegame.schedule;
 
+import xyz.champrin.simplegame.SimpleGame;
+
 public class Countdown {
 
     public static String countDown(int number) {
@@ -15,7 +17,7 @@ public class Countdown {
             case 1:
                 return getNumber1();
             default:
-                return "§6" + number + "\n§e游戏即将开始...";
+                return SimpleGame.getInstance().language.translateString("countdownToTheStartOfTheGame", number);
         }
     }
 

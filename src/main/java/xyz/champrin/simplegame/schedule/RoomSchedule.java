@@ -4,6 +4,7 @@ package xyz.champrin.simplegame.schedule;
 import cn.nukkit.Player;
 import cn.nukkit.scheduler.Task;
 import xyz.champrin.simplegame.Room;
+import xyz.champrin.simplegame.SimpleGame;
 import xyz.champrin.simplegame.games.Games;
 
 
@@ -32,7 +33,7 @@ public class RoomSchedule extends Task {
             if (room.waitPlayer.size() < room.getMinPlayers()) {
                 this.startTime = StartTime;
                 for (Player p : room.waitPlayer) {
-                    p.sendPopup("§f> §l等待其他玩家加入...<\n");
+                    p.sendTip(SimpleGame.getInstance().language.translateString("wait_Bottom"));
                 }
             } else if (room.waitPlayer.size() >= room.getMinPlayers()) {
                 this.startTime = startTime - 1;
@@ -56,9 +57,7 @@ public class RoomSchedule extends Task {
         if (room.game == 1) {
             this.mainTime = mainTime - 1;
             for (Player p : room.gamePlayer) {
-                String msg = "§e你的得分: §f" + room.rank.get(p.getName()) + "\n";
-                msg = msg + "§d时间剩余: §b" + mainTime + "\n\n";
-                p.sendTip(msg);
+                p.sendTip(SimpleGame.getInstance().language.translateString("game_Bottom", room.rank.get(p.getName()), mainTime));
             }
             if (room.gamePlayer.size() <= 1 || this.mainTime <= 0) {
                 this.mainTime = maxTime;
