@@ -498,9 +498,9 @@ public class Room implements Listener {
                 if (item.getNamedTag().getInt("SimpleGameItemType") == 10) {
                     player.sendMessage(this.plugin.language.translateString("exitRoomPrompt"));
                     this.leaveRoom(player);
+                    event.setCancelled(true);
                 }
             }
-            event.setCancelled(true);
         }
     }
 
